@@ -65,6 +65,17 @@ from scene_project.lights import setup_key_light
 Für häufiges Neu-Ausführen in Blender nutzt `run_in_blender.py` automatisch `importlib.reload(...)`,
 damit Änderungen in den Modulen sofort wirksam werden.
 
+## Häufiger Fehler in Blender: `ModuleNotFoundError: scene_project`
+
+Falls Blender meldet, dass `scene_project` nicht gefunden wird, lag bisher meist der
+Projektordner nicht im Python-Suchpfad. `run_in_blender.py` ergänzt den passenden
+Projektpfad jetzt automatisch (Blend-Datei-Ordner oder Script-Ordner als Fallback).
+
+Wenn es trotzdem auftritt:
+- Prüfen, dass `scene_project/__init__.py` existiert.
+- Die `.blend` speichern, damit Blender einen stabilen Projektordner hat.
+- Sicherstellen, dass `run_in_blender.py` aus diesem Repository geladen wurde.
+
 ## Nächste sinnvolle Erweiterungen
 
 - Mehr Actions/Funktionen in `objects.py` (Straßen, Gebäude, Sci-Fi Props)
