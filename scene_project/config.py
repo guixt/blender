@@ -14,6 +14,9 @@ class SceneConfig:
     ground_size: float = 20.0
     tree_count: int = 12
     tree_area_half_extent: float = 8.0
+    rock_count: int = 16
+    bush_count: int = 24
+    pond_radius: float = 2.4
 
     # City-Setup
     city_grid_size: int = 6
