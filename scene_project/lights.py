@@ -17,6 +17,7 @@ def setup_city_lighting():
     """Erweitertes Beleuchtungssetup für nächtliche City-Szenen."""
     created = []
 
+    # Key / Rim
     bpy.ops.object.light_add(type="AREA", location=(8.0, -10.0, 12.0))
     area_key = bpy.context.active_object
     area_key.name = "CityAreaKey"
@@ -34,6 +35,7 @@ def setup_city_lighting():
     area_rim.rotation_euler = (1.1, 0.0, -2.2)
     created.append(area_rim)
 
+    # Farbiger Nebel-Accent
     bpy.ops.object.light_add(type="POINT", location=(0.0, 0.0, 6.0))
     center_glow = bpy.context.active_object
     center_glow.name = "CityCenterGlow"
@@ -45,32 +47,8 @@ def setup_city_lighting():
     return created
 
 
-def _set_eevee_bloom_if_supported(scene):
-    """Aktiviert Bloom nur in Blender-Versionen, die die Attribute besitzen."""
-    eevee_settings = getattr(scene, "eevee", None)
-    if eevee_settings is None:
-        return
-
-    if hasattr(eevee_settings, "use_bloom"):
-        eevee_settings.use_bloom = True
-    if hasattr(eevee_settings, "bloom_intensity"):
-        eevee_settings.bloom_intensity = 0.11
-    if hasattr(eevee_settings, "bloom_radius"):
-        eevee_settings.bloom_radius = 6.5
-
-
-def _set_preferred_render_engine(scene):
-    """Setzt Eevee robust für unterschiedliche Blender-Versionen."""
-    preferred_engines = ("BLENDER_EEVEE", "BLENDER_EEVEE_NEXT")
-    available = {item.identifier for item in scene.render.bl_rna.properties["engine"].enum_items}
-    for engine in preferred_engines:
-        if engine in available:
-            scene.render.engine = engine
-            return
-
-
 def setup_city_world_and_fog():
-    """Setzt ein dunkles World-Setup mit Bloom/Glare-Fallbacks je nach Blender-Version."""
+    """Setzt ein dunkles World-Setup mit leichter Volumetrik."""
     scene = bpy.context.scene
     world = scene.world or bpy.data.worlds.new("World")
     scene.world = world
@@ -86,8 +64,10 @@ def setup_city_world_and_fog():
     bg.inputs["Strength"].default_value = 0.35
     links.new(bg.outputs["Background"], out.inputs["Surface"])
 
-    _set_preferred_render_engine(scene)
-    _set_eevee_bloom_if_supported(scene)
+    scene.render.engine = "BLENDER_EEVEE"
+    scene.eevee.use_bloom = True
+    scene.eevee.bloom_intensity = 0.11
+    scene.eevee.bloom_radius = 6.5
 
     scene.use_nodes = True
     tree = scene.node_tree

@@ -61,7 +61,7 @@ blender --factory-startup --python run_in_blender.py -- --scene=forest
 
 ## Verfügbare Szenen
 
-- `forest`: Bestehendes Basisbeispiel (Boden + Baum-Cluster).
+- `forest`: Erweiterte Naturszene (Boden + Baum-Cluster + Felsen + Büsche + Teich).
 - `city`: Neues Beispiel für eine futuristische Stadt (dunkler Boden + Tower-Grid).
 
 ## Iterativer Workflow (empfohlen)
