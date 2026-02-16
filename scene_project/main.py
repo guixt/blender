@@ -4,18 +4,24 @@ from scene_project.camera import setup_camera
 from scene_project.config import SceneConfig
 from scene_project.lights import setup_sun_light
 from scene_project.objects import (
+    add_bush_cluster,
     add_city_block_grid,
     add_city_ground,
+    add_forest_pond,
     add_ground,
+    add_rock_field,
     add_tree_cluster,
     clear_scene,
 )
 
 
 def _build_forest_scene(cfg: SceneConfig):
-    """Baut die bisherige Wald-Testszene."""
+    """Baut eine dichtere Waldszene mit Teich, Felsen und Büschen."""
     add_ground(size=cfg.ground_size)
     add_tree_cluster(count=cfg.tree_count, area_half_extent=cfg.tree_area_half_extent, seed=42)
+    add_rock_field(count=cfg.rock_count, area_half_extent=cfg.tree_area_half_extent, seed=101)
+    add_bush_cluster(count=cfg.bush_count, area_half_extent=cfg.tree_area_half_extent * 0.95, seed=202)
+    add_forest_pond(radius=cfg.pond_radius)
 
 
 def _build_futuristic_city_scene(cfg: SceneConfig):
