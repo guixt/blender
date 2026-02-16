@@ -37,6 +37,32 @@ def add_ground(size: float = 20.0):
     return ground
 
 
+def add_forest_pond(radius: float = 2.4, location: tuple[float, float, float] = (0.0, -1.8, 0.02)):
+    """Fügt einen kleinen Teich in den Wald ein."""
+    x, y, z = location
+    bpy.ops.mesh.primitive_cylinder_add(
+        vertices=40,
+        radius=radius,
+        depth=0.08,
+        location=(x, y, z),
+    )
+    pond = bpy.context.active_object
+    pond.name = "ForestPond"
+
+    pond_mat = make_principled_material(
+        name="M_Pond_Water",
+        base_color=(0.05, 0.16, 0.20, 1.0),
+        roughness=0.08,
+        metallic=0.0,
+    )
+    assign_material(pond, pond_mat)
+
+    # Flaches, leicht ovales Gewässer wirkt natürlicher als ein perfekter Kreis.
+    pond.scale.x = 1.2
+    pond.scale.y = 0.85
+    return pond
+
+
 def add_city_ground(size: float = 24.0):
     """Legt eine dunkle Ground-Plane für City-Szenen an."""
     bpy.ops.mesh.primitive_plane_add(size=size, location=(0.0, 0.0, 0.0))
@@ -94,6 +120,59 @@ def add_tree_cluster(count: int, area_half_extent: float, seed: int = 42):
         y = random.uniform(-area_half_extent, area_half_extent)
         scale = random.uniform(0.8, 1.3)
         created.extend(add_tree(location=(x, y, 0.0), scale=scale))
+
+    return created
+
+
+def add_rock_field(count: int, area_half_extent: float, seed: int = 101):
+    """Verteilt kleinere Felsen auf dem Waldboden."""
+    random.seed(seed)
+    created = []
+    rock_mat = make_principled_material(
+        name="M_Rock",
+        base_color=(0.24, 0.25, 0.23, 1.0),
+        roughness=0.92,
+        metallic=0.0,
+    )
+
+    for idx in range(count):
+        x = random.uniform(-area_half_extent, area_half_extent)
+        y = random.uniform(-area_half_extent, area_half_extent)
+        scale = random.uniform(0.15, 0.45)
+
+        bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=1.0, location=(x, y, scale * 0.45))
+        rock = bpy.context.active_object
+        rock.name = f"Rock_{idx:02d}"
+        rock.scale = (scale * random.uniform(1.0, 1.8), scale * random.uniform(0.8, 1.3), scale * random.uniform(0.6, 1.0))
+        rock.rotation_euler = (random.uniform(-0.35, 0.35), random.uniform(-0.35, 0.35), random.uniform(0.0, 3.14))
+        assign_material(rock, rock_mat)
+        created.append(rock)
+
+    return created
+
+
+def add_bush_cluster(count: int, area_half_extent: float, seed: int = 202):
+    """Fügt niedrige Büsche zwischen den Bäumen ein."""
+    random.seed(seed)
+    created = []
+    bush_mat = make_principled_material(
+        name="M_Bush",
+        base_color=(0.09, 0.33, 0.14, 1.0),
+        roughness=0.55,
+        metallic=0.0,
+    )
+
+    for idx in range(count):
+        x = random.uniform(-area_half_extent, area_half_extent)
+        y = random.uniform(-area_half_extent, area_half_extent)
+        size = random.uniform(0.25, 0.7)
+
+        bpy.ops.mesh.primitive_uv_sphere_add(radius=size, location=(x, y, size * 0.6))
+        bush = bpy.context.active_object
+        bush.name = f"Bush_{idx:02d}"
+        bush.scale = (1.2, random.uniform(0.7, 1.4), 0.65)
+        assign_material(bush, bush_mat)
+        created.append(bush)
 
     return created
 
