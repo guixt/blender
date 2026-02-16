@@ -37,20 +37,39 @@ Dieses Repository ist ein minimaler Starter, um Blender-Szenen **iterativ per Py
 3. `run_in_blender.py` laden.
 4. `Run Script` klicken.
 
+> Ohne zusätzliche Parameter wird die Standard-Szene `forest` gebaut.
+
 ### Variante B: Über CLI
 
 ```bash
 blender --factory-startup --python run_in_blender.py
 ```
 
+**Szenenauswahl per Parameter:**
+
+```bash
+blender --factory-startup --python run_in_blender.py -- --scene city
+```
+
+Alternativ:
+
+```bash
+blender --factory-startup --python run_in_blender.py -- --scene=forest
+```
+
 > `--factory-startup` sorgt für einen sauberen Start ohne alte User-Settings.
+
+## Verfügbare Szenen
+
+- `forest`: Bestehendes Basisbeispiel (Boden + Baum-Cluster).
+- `city`: Neues Beispiel für eine futuristische Stadt (dunkler Boden + Tower-Grid).
 
 ## Iterativer Workflow (empfohlen)
 
 1. **Neue Idee definieren** (z. B. "mehr Neon", "mehr Props", "Fog").
 2. Funktion in passendem Modul ergänzen (`objects.py`, `materials.py`, ...).
-3. In `scene_project/main.py` in `build_scene()` aufrufen.
-4. `run_in_blender.py` neu ausführen.
+3. In `scene_project/main.py` Builder ergänzen oder erweitern.
+4. `run_in_blender.py` neu ausführen (mit optionalem `--scene ...`).
 5. Ergebnis prüfen und nächste Iteration planen.
 
 ## "Includes" in Python
@@ -59,7 +78,7 @@ Python hat keine `#include`-Direktiven wie C/C++. Das Äquivalent sind Imports:
 
 ```python
 from scene_project.objects import add_ground
-from scene_project.lights import setup_key_light
+from scene_project.lights import setup_sun_light
 ```
 
 Für häufiges Neu-Ausführen in Blender nutzt `run_in_blender.py` automatisch `importlib.reload(...)`,
@@ -78,7 +97,7 @@ Wenn es trotzdem auftritt:
 
 ## Nächste sinnvolle Erweiterungen
 
-- Mehr Actions/Funktionen in `objects.py` (Straßen, Gebäude, Sci-Fi Props)
-- Parameter-Datei für verschiedene Stil-Presets
+- Eigene Licht-Presets pro Szene (`city_night`, `sunset_forest`, ...)
+- Emission-Materialien + volumetrischer Nebel für mehr Cyberpunk-Look
 - Export von `scene_summary` als JSON für KI-Feedback pro Iteration
 - Optional später: Addon + API + Action-Whitelist

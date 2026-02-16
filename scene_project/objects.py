@@ -31,6 +31,22 @@ def add_ground(size: float = 20.0):
     return ground
 
 
+def add_city_ground(size: float = 24.0):
+    """Legt eine dunkle Ground-Plane für City-Szenen an."""
+    bpy.ops.mesh.primitive_plane_add(size=size, location=(0.0, 0.0, 0.0))
+    ground = bpy.context.active_object
+    ground.name = "CityGround"
+
+    ground_mat = make_principled_material(
+        name="M_City_Ground",
+        base_color=(0.02, 0.02, 0.03, 1.0),
+        roughness=0.95,
+        metallic=0.0,
+    )
+    assign_material(ground, ground_mat)
+    return ground
+
+
 def add_tree(location: tuple[float, float, float], scale: float = 1.0):
     """Erstellt einen sehr einfachen Low-Poly-Baum (Stamm + Krone)."""
     x, y, z = location
@@ -72,5 +88,74 @@ def add_tree_cluster(count: int, area_half_extent: float, seed: int = 42):
         y = random.uniform(-area_half_extent, area_half_extent)
         scale = random.uniform(0.8, 1.3)
         created.extend(add_tree(location=(x, y, 0.0), scale=scale))
+
+    return created
+
+
+def _add_city_tower(
+    location: tuple[float, float, float],
+    width: float,
+    depth: float,
+    height: float,
+    material_name: str,
+    base_color: tuple[float, float, float, float],
+):
+    """Erzeugt einen einfachen Tower als Box."""
+    x, y, z = location
+    bpy.ops.mesh.primitive_cube_add(location=(x, y, z + (height / 2.0)))
+    tower = bpy.context.active_object
+    tower.name = f"Tower_{x:.1f}_{y:.1f}"
+    tower.scale = (width / 2.0, depth / 2.0, height / 2.0)
+
+    tower_mat = make_principled_material(
+        name=material_name,
+        base_color=base_color,
+        roughness=0.25,
+        metallic=0.35,
+    )
+    assign_material(tower, tower_mat)
+    return tower
+
+
+def add_city_block_grid(
+    grid_size: int,
+    spacing: float,
+    min_height: float,
+    max_height: float,
+    seed: int = 7,
+):
+    """Erzeugt ein futuristisches City-Grid mit variierenden Tower-Höhen."""
+    random.seed(seed)
+    created = []
+    half = (grid_size - 1) * spacing * 0.5
+
+    neon_variants = [
+        ("M_City_Blue", (0.08, 0.22, 0.45, 1.0)),
+        ("M_City_Purple", (0.19, 0.09, 0.32, 1.0)),
+        ("M_City_Cyan", (0.05, 0.28, 0.30, 1.0)),
+    ]
+
+    for gx in range(grid_size):
+        for gy in range(grid_size):
+            x = gx * spacing - half
+            y = gy * spacing - half
+            height = random.uniform(min_height, max_height)
+
+            # Jede dritte Kachel bleibt frei als "Straßenraum".
+            if (gx + gy) % 3 == 0:
+                continue
+
+            mat_name, color = random.choice(neon_variants)
+            width = random.uniform(1.2, 2.0)
+            depth = random.uniform(1.2, 2.0)
+            tower = _add_city_tower(
+                location=(x, y, 0.0),
+                width=width,
+                depth=depth,
+                height=height,
+                material_name=mat_name,
+                base_color=color,
+            )
+            created.append(tower)
 
     return created

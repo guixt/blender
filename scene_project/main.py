@@ -3,17 +3,52 @@
 from scene_project.camera import setup_camera
 from scene_project.config import SceneConfig
 from scene_project.lights import setup_sun_light
-from scene_project.objects import add_ground, add_tree_cluster, clear_scene
+from scene_project.objects import (
+    add_city_block_grid,
+    add_city_ground,
+    add_ground,
+    add_tree_cluster,
+    clear_scene,
+)
+
+
+def _build_forest_scene(cfg: SceneConfig):
+    """Baut die bisherige Wald-Testszene."""
+    add_ground(size=cfg.ground_size)
+    add_tree_cluster(count=cfg.tree_count, area_half_extent=cfg.tree_area_half_extent, seed=42)
+
+
+def _build_futuristic_city_scene(cfg: SceneConfig):
+    """Baut eine erste futuristische Stadt als erweiterbares Beispiel."""
+    ground_size = max(cfg.ground_size, cfg.city_grid_size * cfg.city_block_spacing)
+    add_city_ground(size=ground_size)
+    add_city_block_grid(
+        grid_size=cfg.city_grid_size,
+        spacing=cfg.city_block_spacing,
+        min_height=cfg.city_min_height,
+        max_height=cfg.city_max_height,
+        seed=7,
+    )
 
 
 def build_scene(config: SceneConfig | None = None):
     """Baut die Szene anhand einer Konfiguration auf."""
     cfg = config or SceneConfig()
+    scene_name = cfg.scene_name.lower().strip()
 
     clear_scene()
-    add_ground(size=cfg.ground_size)
-    add_tree_cluster(count=cfg.tree_count, area_half_extent=cfg.tree_area_half_extent, seed=42)
+
+    builders = {
+        "forest": _build_forest_scene,
+        "city": _build_futuristic_city_scene,
+    }
+    scene_builder = builders.get(scene_name)
+    if scene_builder is None:
+        supported = ", ".join(sorted(builders))
+        raise ValueError(f"Unbekannte Szene '{cfg.scene_name}'. Erlaubt: {supported}")
+
+    scene_builder(cfg)
     setup_sun_light(energy=cfg.sun_energy)
     setup_camera(location=cfg.camera_location, rotation_euler=cfg.camera_rotation_euler)
 
-    print("[scene_project] Scene build complete.")
+    print(f"[scene_project] Scene '{scene_name}' build complete.")

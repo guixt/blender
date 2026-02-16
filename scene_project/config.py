@@ -8,9 +8,20 @@ from dataclasses import dataclass
 
 @dataclass
 class SceneConfig:
+    scene_name: str = "forest"
+
+    # Forest-Setup
     ground_size: float = 20.0
     tree_count: int = 12
     tree_area_half_extent: float = 8.0
+
+    # City-Setup
+    city_grid_size: int = 6
+    city_block_spacing: float = 3.0
+    city_min_height: float = 1.5
+    city_max_height: float = 8.0
+
+    # Shared scene settings
     sun_energy: float = 3.5
     camera_location: tuple[float, float, float] = (12.0, -14.0, 10.0)
     camera_rotation_euler: tuple[float, float, float] = (1.0, 0.0, 0.75)

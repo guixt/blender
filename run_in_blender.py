@@ -45,6 +45,28 @@ def _ensure_project_root_in_syspath() -> Path:
     return project_root
 
 
+def _read_scene_name_from_argv(default: str = "forest") -> str:
+    """Liest den gewünschten Szenennamen aus Blender/Python-Argumenten.
+
+    Unterstützte Formen:
+    - blender ... --python run_in_blender.py -- --scene city
+    - blender ... --python run_in_blender.py -- --scene=city
+    """
+
+    argv = sys.argv
+    if "--" not in argv:
+        return default
+
+    user_args = argv[argv.index("--") + 1 :]
+    for idx, arg in enumerate(user_args):
+        if arg == "--scene" and idx + 1 < len(user_args):
+            return user_args[idx + 1].strip().lower()
+        if arg.startswith("--scene="):
+            return arg.split("=", 1)[1].strip().lower()
+
+    return default
+
+
 _ensure_project_root_in_syspath()
 
 import scene_project.camera as camera
@@ -58,5 +80,8 @@ import scene_project.objects as objects
 for module in (materials, objects, lights, camera, config, main):
     importlib.reload(module)
 
+selected_scene = _read_scene_name_from_argv(default="forest")
+print(f"[run_in_blender] Selected scene: {selected_scene}")
+
 # Szene bauen
-main.build_scene(config.SceneConfig())
+main.build_scene(config.SceneConfig(scene_name=selected_scene))
